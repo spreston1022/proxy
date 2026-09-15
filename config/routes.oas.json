@@ -2,295 +2,88 @@
   "openapi": "3.1.0",
   "info": {
     "version": "1.0.0",
-    "title": "Todo API",
-    "description": "A simple task management API that lets you create, read, update, and delete todo items. Use this API to build productivity apps, task trackers, or integrate task management into your existing workflows.\n\n## Getting Started\n\nAll endpoints accept and return JSON. To create your first todo, send a `POST` request to `/todos` with a title and userId.\n\n## Authentication\n\nThis sample API does not require authentication. Add [API key authentication](https://zuplo.com/docs/policies/api-key-inbound) or any other policy via your Zuplo gateway configuration.",
-    "contact": {
-      "name": "API Support",
-      "url": "https://zuplo.com/docs",
-      "email": "support@zuplo.com"
-    }
+    "title": "AC360 MCP Proxy",
+    "description": "A pass-through proxy in front of the upstream AC360 MCP server. Every request is logged with the calling app, user, and email (read from an unverified bearer JWT) plus the MCP tool name and arguments, and every response is scanned for common sensitive values (PII, financial identifiers, secrets) which are masked before reaching the calling LLM."
   },
   "paths": {
-    "/todos": {
-      "get": {
-        "summary": "Get all todos",
-        "description": "**Retrieves a complete list of all todo items** from the system. This endpoint returns all todos regardless of their completion status or owner, making it useful for displaying comprehensive todo lists or performing bulk operations.",
-        "responses": {
-          "200": {
-            "description": "A list of todos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Todo"
-                  }
-                },
-                "examples": {
-                  "mixed_todos": {
-                    "summary": "A list of todos with different completion states",
-                    "value": [
-                      {
-                        "id": 1,
-                        "title": "Buy groceries",
-                        "completed": false,
-                        "userId": 123
-                      },
-                      {
-                        "id": 2,
-                        "title": "Write documentation",
-                        "completed": true,
-                        "userId": 456
-                      },
-                      {
-                        "id": 3,
-                        "title": "Review pull requests",
-                        "completed": false,
-                        "userId": 123
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "get-all-todos",
-        "x-zuplo-route": {
-          "corsPolicy": "none",
-          "handler": {
-            "export": "urlForwardHandler",
-            "module": "$import(@zuplo/runtime)",
-            "options": {
-              "baseUrl": "https://todo.zuplo.io"
-            }
-          }
-        },
-        "tags": ["Todo"]
-      },
+    "/mcp": {
       "post": {
-        "summary": "Create a new todo",
-        "description": "**Creates a new todo item** with the provided details. The todo will be assigned a unique ID automatically and can include a title, completion status, and user association. This is the primary endpoint for adding new tasks to the system.",
+        "summary": "MCP JSON-RPC endpoint",
+        "description": "Forwards MCP JSON-RPC messages (initialize, tools/list, tools/call, etc.) to the upstream AC360 MCP server.",
+        "operationId": "mcp-proxy-post",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTodo"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Todo created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                },
-                "examples": {
-                  "new_todo": {
-                    "summary": "A newly created todo",
-                    "value": {
-                      "id": 4,
-                      "title": "Deploy application",
-                      "completed": false,
-                      "userId": 789
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body"
-          }
-        },
-        "operationId": "create-todo",
-        "x-zuplo-route": {
-          "corsPolicy": "none",
-          "handler": {
-            "export": "urlForwardHandler",
-            "module": "$import(@zuplo/runtime)",
-            "options": {
-              "baseUrl": "https://todo.zuplo.io"
-            }
-          }
-        },
-        "tags": ["Todo"]
-      }
-    },
-    "/todos/{id}": {
-      "put": {
-        "summary": "Update a todo",
-        "description": "**Updates an existing todo item** by its unique identifier. You can modify any combination of the todo's properties including title, completion status, and user assignment. All changes are applied atomically to ensure data consistency.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "The todo ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTodo"
-              }
+              "schema": { "type": "object" }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Todo updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                },
-                "examples": {
-                  "updated_todo": {
-                    "summary": "A todo that has been updated",
-                    "value": {
-                      "id": 1,
-                      "title": "Buy groceries and cook dinner",
-                      "completed": true,
-                      "userId": 123
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body"
-          },
-          "404": {
-            "description": "Todo not found"
+            "description": "JSON-RPC response from the upstream MCP server"
           }
         },
-        "operationId": "update-todo",
         "x-zuplo-route": {
           "corsPolicy": "none",
           "handler": {
             "export": "urlForwardHandler",
             "module": "$import(@zuplo/runtime)",
             "options": {
-              "baseUrl": "https://todo.zuplo.io"
+              "baseUrl": "${env.MCP_UPSTREAM_URL}"
             }
+          },
+          "policies": {
+            "inbound": ["log-mcp-call"],
+            "outbound": ["mcp-dlp-mask"]
+          }
+        }
+      },
+      "get": {
+        "summary": "MCP server-sent event stream",
+        "description": "Forwards the optional Streamable HTTP GET stream to the upstream AC360 MCP server.",
+        "operationId": "mcp-proxy-get",
+        "responses": {
+          "200": {
+            "description": "Server-sent event stream from the upstream MCP server"
           }
         },
-        "tags": ["Todo"]
+        "x-zuplo-route": {
+          "corsPolicy": "none",
+          "handler": {
+            "export": "urlForwardHandler",
+            "module": "$import(@zuplo/runtime)",
+            "options": {
+              "baseUrl": "${env.MCP_UPSTREAM_URL}"
+            }
+          },
+          "policies": {
+            "inbound": ["log-mcp-call"],
+            "outbound": ["mcp-dlp-mask"]
+          }
+        }
       },
       "delete": {
-        "summary": "Delete a todo",
-        "description": "**Permanently removes a todo item** from the system using its unique identifier. This operation cannot be undone, so use with caution. The endpoint will return a 404 error if the specified todo does not exist.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "The todo ID"
-          }
-        ],
+        "summary": "MCP session termination",
+        "description": "Forwards session-termination requests to the upstream AC360 MCP server.",
+        "operationId": "mcp-proxy-delete",
         "responses": {
-          "204": {
-            "description": "Todo deleted successfully"
-          },
-          "404": {
-            "description": "Todo not found"
+          "200": {
+            "description": "Response from the upstream MCP server"
           }
         },
-        "operationId": "delete-todo",
         "x-zuplo-route": {
           "corsPolicy": "none",
           "handler": {
             "export": "urlForwardHandler",
             "module": "$import(@zuplo/runtime)",
             "options": {
-              "baseUrl": "https://todo.zuplo.io"
+              "baseUrl": "${env.MCP_UPSTREAM_URL}"
             }
-          }
-        },
-        "tags": ["Todo"]
-      }
-    }
-  },
-  "tags": [
-    {
-      "name": "Todo",
-      "description": "Endpoints for managing todo items including creating, listing, updating, and deleting tasks."
-    }
-  ],
-  "components": {
-    "schemas": {
-      "Todo": {
-        "description": "A complete todo item as returned by the API, including its system-assigned ID.",
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The todo ID"
           },
-          "title": {
-            "type": "string",
-            "description": "The todo title"
-          },
-          "completed": {
-            "type": "boolean",
-            "description": "Whether the todo is completed"
-          },
-          "userId": {
-            "type": "integer",
-            "description": "The user ID who owns the todo"
-          }
-        },
-        "required": ["id", "title", "completed", "userId"]
-      },
-      "CreateTodo": {
-        "description": "The request body for creating a new todo. Only a title and userId are required.",
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "The todo title"
-          },
-          "completed": {
-            "type": "boolean",
-            "description": "Whether the todo is completed",
-            "default": false
-          },
-          "userId": {
-            "type": "integer",
-            "description": "The user ID who owns the todo"
-          }
-        },
-        "required": ["title", "userId"]
-      },
-      "UpdateTodo": {
-        "description": "The request body for updating a todo. All fields are optional so you can patch individual properties.",
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "The todo title"
-          },
-          "completed": {
-            "type": "boolean",
-            "description": "Whether the todo is completed"
-          },
-          "userId": {
-            "type": "integer",
-            "description": "The user ID who owns the todo"
+          "policies": {
+            "inbound": ["log-mcp-call"],
+            "outbound": ["mcp-dlp-mask"]
           }
         }
       }

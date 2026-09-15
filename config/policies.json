@@ -1,3 +1,26 @@
 {
-  "policies": []
+  "policies": [
+    {
+      "name": "log-mcp-call",
+      "policyType": "log-mcp-call-inbound",
+      "handler": {
+        "export": "LogMcpCallInboundPolicy",
+        "module": "$import(./modules/log-mcp-call)"
+      }
+    },
+    {
+      "name": "mcp-dlp-mask",
+      "policyType": "data-loss-prevention-outbound",
+      "handler": {
+        "export": "DataLossPreventionOutboundPolicy",
+        "module": "$import(@zuplo/runtime)",
+        "options": {
+          "action": "mask",
+          "mask": "[REDACTED]",
+          "entities": ["contact", "finance", "id-us", "secret"],
+          "contentTypes": ["application/json"]
+        }
+      }
+    }
+  ]
 }

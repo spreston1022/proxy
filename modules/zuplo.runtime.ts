@@ -1,6 +1,5 @@
 import { OpenTelemetryPlugin } from "@zuplo/otel";
 import { environment, type RuntimeExtensions } from "@zuplo/runtime";
-import { McpGatewayPlugin } from "@zuplo/runtime/mcp-gateway";
 
 /**
  * `runtimeInit` runs once when your gateway boots. Use it to register plugins
@@ -8,14 +7,9 @@ import { McpGatewayPlugin } from "@zuplo/runtime/mcp-gateway";
  * https://zuplo.com/docs/programmable-api/runtime-extensions
  */
 export function runtimeInit(runtime: RuntimeExtensions) {
-  // --- MCP Gateway ---------------------------------------------------------
-  // Registers the MCP Gateway, which adds the OAuth and upstream-connection
-  // routes used to expose and secure MCP servers through your gateway. It is a
-  // no-op until you add an MCP route/policy, so it is safe to leave enabled.
-  // Docs: https://zuplo.com/docs/mcp-server/introduction
-  //
-  // Remove this plugin if you are not using the MCP Gateway features.
-  runtime.addPlugin(new McpGatewayPlugin());
+  // This is a plain pass-through proxy to a single upstream MCP server (see
+  // config/routes.oas.json), so the McpGatewayPlugin/McpProxyHandler feature
+  // set (OAuth brokering, capability filtering, tool discovery) is not used.
 
   // --- OpenTelemetry tracing (optional) ------------------------------------
   // Send traces to Zuplo's built-in tracing. This can also be configured to
