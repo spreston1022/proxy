@@ -9,6 +9,23 @@
       }
     },
     {
+      "name": "set-upstream-secret",
+      "policyType": "set-headers-inbound",
+      "handler": {
+        "export": "SetHeadersInboundPolicy",
+        "module": "$import(@zuplo/runtime)",
+        "options": {
+          "headers": [
+            {
+              "name": "X-Zuplo-Secret",
+              "value": "$env(MCP_UPSTREAM_SECRET)",
+              "overwrite": true
+            }
+          ]
+        }
+      }
+    },
+    {
       "name": "mcp-dlp-mask",
       "policyType": "data-loss-prevention-outbound",
       "handler": {
