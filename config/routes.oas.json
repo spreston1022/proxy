@@ -34,7 +34,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-mcp-call", "set-upstream-secret"],
+            "inbound": ["allow-akamai-ips", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }
@@ -58,7 +58,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-mcp-call", "set-upstream-secret"],
+            "inbound": ["allow-akamai-ips", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }
@@ -82,7 +82,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-mcp-call", "set-upstream-secret"],
+            "inbound": ["allow-akamai-ips", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }

@@ -1,6 +1,26 @@
 {
   "policies": [
     {
+      "name": "allow-akamai-ips",
+      "policyType": "ip-address-restriction-inbound",
+      "handler": {
+        "export": "IpAddressRestrictionInboundPolicy",
+        "module": "$import(@zuplo/runtime)",
+        "options": {
+          "allow": [
+            "184.24.0.0/13",
+            "2.16.0.0/13",
+            "23.0.0.0/12",
+            "23.192.0.0/11",
+            "23.32.0.0/11",
+            "95.100.0.0/15",
+            "23.50.48.0/20",
+            "23.48.168.0/22"
+          ]
+        }
+      }
+    },
+    {
       "name": "log-mcp-call",
       "policyType": "log-mcp-call-inbound",
       "handler": {
