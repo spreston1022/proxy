@@ -1,6 +1,14 @@
 {
   "policies": [
     {
+      "name": "log-client-ip",
+      "policyType": "log-client-ip-inbound",
+      "handler": {
+        "export": "LogClientIpInboundPolicy",
+        "module": "$import(./modules/log-client-ip)"
+      }
+    },
+    {
       "name": "allow-akamai-ips",
       "policyType": "ip-address-restriction-inbound",
       "handler": {
