@@ -34,7 +34,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip", "log-mcp-call"],
+            "inbound": ["log-client-ip", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }
@@ -58,7 +58,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip", "log-mcp-call"],
+            "inbound": ["log-client-ip", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }
@@ -82,7 +82,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip", "log-mcp-call"],
+            "inbound": ["log-client-ip", "log-mcp-call", "set-upstream-secret"],
             "outbound": ["mcp-dlp-mask"]
           }
         }
@@ -94,7 +94,7 @@
       },
       "get": {
         "summary": "Pass-through (GET)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-get",
         "responses": {
           "200": {
@@ -111,13 +111,13 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       },
       "post": {
         "summary": "Pass-through (POST)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-post",
         "responses": {
           "200": {
@@ -134,13 +134,13 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       },
       "put": {
         "summary": "Pass-through (PUT)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-put",
         "responses": {
           "200": {
@@ -157,13 +157,13 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       },
       "patch": {
         "summary": "Pass-through (PATCH)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-patch",
         "responses": {
           "200": {
@@ -180,13 +180,13 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       },
       "delete": {
         "summary": "Pass-through (DELETE)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-delete",
         "responses": {
           "200": {
@@ -203,13 +203,13 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       },
       "head": {
         "summary": "Pass-through (HEAD)",
-        "description": "Forwards any other path to the upstream AC360 server unchanged.",
+        "description": "Forwards any other path to the upstream AC360 server unchanged, adding the upstream secret header.",
         "operationId": "passthrough-head",
         "responses": {
           "200": {
@@ -226,7 +226,7 @@
             }
           },
           "policies": {
-            "inbound": ["log-client-ip"]
+            "inbound": ["log-client-ip", "set-upstream-secret"]
           }
         }
       }
